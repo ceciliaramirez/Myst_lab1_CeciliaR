@@ -60,3 +60,17 @@ for(i in 1:length(tk))
 Rends <- xts(x = cbind(Datos[[1]]$adj_close_r, Datos[[2]]$adj_close_r, Datos[[3]]$adj_close_r),
              order.by = Datos[[1]]$date)[-1]
 names(Rends) <- tk
+
+Port1 <- portfolio.spec(assets=tk)
+
+#restricciones de portafolio
+
+#1: la suma de todo los pesos es 1
+Port1 <- add.constraint(portfolio = Port1,type = "full investment")
+
+#2: limites superior e inferior para el valor de los pesos individuales
+Port1 <- add.constraint(portfolio = Port1, type = "box", min=c(0.1, 0.1, 0.1), max=c(0.7, 0.7, 0.7))
+
+Port1 <- add.objective(portfolio = Port1, type = "return", name = "mean")
+
+Port1 <- optimize.portfolio(R=Rends, portfolio = Port1, optimize_method = "random", trace = TRUE, search_size = 50)
