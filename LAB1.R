@@ -1,3 +1,5 @@
+#LABORATORIO 1
+
 # Remover todos los objetos del "Environment"
 rm(list = ls())
 
@@ -41,13 +43,13 @@ Bajar_Precios <- function(Columns, Tickers, Fecha_In, Fecha_Fn) {
 }
 
 # Tickers de accciones y datos a solicitar a QUANDL
-tk <- c("BAC", "PFE", "MSFT")
+tk <- c("BAC", "PFE", "MSFT") #Activos utilizados: Bank of America, Pfizer, Microsoft
 cs <- c("date", "adj_close")
 
 # Fecha inicial y fecha final
 fs <- c("2015-08-01", "2017-08-01")
 
-# Descargar Precios y Calcular rendimientos
+# Descargar Precios
 Datos <- list()
 
 for(i in 1:length(tk))
@@ -60,8 +62,8 @@ names(Datos) <- tk
 for (i in 1: length(tk)){
   Datos[[i]] <- Datos[[i]][order(Datos[[i]][,1]),]
 }
-#nuevos <- as.data.frame(Datos$BAC)
-#nuevos <- nuevos [order(nuevos[,1]),]
+
+#Calcular rendimientos
 
 for(i in 1:length(tk))
   Datos[[i]]$adj_close_r <- c(0, diff(log(Datos[[i]]$adj_close)))
@@ -86,7 +88,7 @@ Port1 <- optimize.portfolio(R=Rends, portfolio = Port1, optimize_method = "rando
 
 Portafolios <- vector("list", length= length(Port1$random_portfolio_objective_results))
 
-
+#Obtener pesos, medias y varianza
 for(i in 1:length(Port1$random_portfolio_objective_results)) {
   Portafolios[[i]]$Pesos <- Port1$random_portfolio_objective_results[[i]]$weights
   Portafolios[[i]]$Medias <- Port1$random_portfolio_objective_results[[i]]$objective_measures$mean
@@ -111,7 +113,7 @@ for (i in 1:length(Port1$random_portfolio_objective_results)) {
   }
 }
 
-###########################################
+########################################### Graficas
 
 
 Plot_portafolios <- plot_ly(x=df_Portafolios$Var, y=df_Portafolios$Rend, type='scatter', mode='markers',
@@ -190,3 +192,15 @@ plot_ly(Historicos_Ports) %>%
          xaxis = list(title = "Fechas", showgrid = T),
          yaxis = list(title = "Balance"), 
          legend = list(orientation = 'h', y = -0.25, x = 0.5))
+
+#Los 3 activos utilizados para este portafolio son Bank of America, Pfizer y Microsoft; activos de distintos sectores. 
+#Se tomaron los precios del 1/08/15 al 1/08/17 con un capital inicial de $10,000.
+#El tamaño de la simulación fue de 5000 de los cuales se obtuvieron 430 posibles portafolios con:
+#rendimiento, varianza, pesos y numero de titulos de cada accion.
+#Se eligieron los 3 mejores portafolios en base a max. rendimiento, min. varianza y max. Sharpe
+#Maximo rendimiento: Pesos: BAC:32.6%, PFE:1.4%, MSFT:66% 
+#Minima varianza: Pesos: BAC:5.4%, PFE:60.8%, MSFT:33.8% 
+#Maximo Sharpe: Pesos: BAC:24.6%, PFE:5.4%, MSFT:70% 
+#Dependiendo del objetivo que se busca en relación rendimiento-riesgo los pesos de los activos en cada portafolio son diferentes.
+#En 2 de los 3 escenarios PFE tiene muy poco % por lo que puede ser recomendable probar con otro activo.
+#La decision de cual portafolio utilizar depende del perfil del inversionista y lo que este buscando.
